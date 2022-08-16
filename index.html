@@ -182,11 +182,14 @@ function SendPicks(){
 	
 	for (var g = 1; g <=17; g++){
 		if (pick_list[g] === "") {
+			/*
    			str = excel_output[1][g];
 			str = str.replace(/\d/g, "");
 			str = str.replace('+', "");
 			str = str.replace('.', "");
 			str = str.toUpperCase();
+			*/
+			str = '*';
    			pick_list[g] = str;
 		}
 		/*pick_list[g] = pick_list[g].replace('NO', 'NO*');
