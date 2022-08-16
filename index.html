@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NFL 2022 Pick Selector</title>
+        <link rel="shortcut icon" href="https://dl.dropboxusercontent.com/s/d8kuo01repoyfif/favicon.ico?raw=1" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<meta charset="utf-8"/>
+
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+		<script type="text/javascript">
+		(function() {
+		emailjs.init("user_WPjQVdkGqe0dRD7kbBcGr");
+		})();
+	</script>
+</head>
+
+
+<script>
+
+$(document).ready(function() {
+	$("#submit_status").hide();
+	divClone = $("#main_table").clone();
+	Get_Data();
+});
+
+var divClone = [];
+var xl = 'https://dl.dropboxusercontent.com/s/w92phulxqkuymia/Spredz.csv?raw=1';
+var m = [];
+var nCol = 4;
+var excel_output = [];
+var num_games = [];
+var picks = [];
+
+var away_teams = [];
+var home_teams = [];
+
+var game_status_code = []; //1 = yet to start, 2 = in progress, 3 = final
+var game_status_text = [];
+var differential = [];
+var nGames = [];
+//var team_full = ["Carolina", "Philadelphia", "Indianapolis", "New Orleans", "Giants", "Houston", "Washington", "Cleveland", "Jets", "Kansas City", "Pittsburgh", "Tennessee", "San Francisco", "Tampa Bay", "Minnesota", "Arizona", "Miami", "Baltimore", "Chicago", "New England", "Jacksonville", "Denver", "Detroit", "Buffalo", "Atlanta", "Seattle", "Green Bay", "Los Angeles", "Dallas", "Cincinnati", "Oakland", "Los Angeles"];
+//var team_full = ["Panthers", "Eagles", "Colts", "Saints", "Giants", "Texans", "Redskins", "Browns", "Jets", "Chiefs", "Steelers", "Titans", "49ers", "Buccaneers", "Vikings", "Cardinals", "Dolphins", "Ravens", "Bears", "Patriots", "Jaguars", "Broncos", "Lions", "Bills", "Falcons", "Seahawks", "Packers", "Rams", "Cowboys", "Bengals", "Raiders", "Chargers"];
+var team_code = ["CAR", "PHI", "IND", "NO", "NYG", "HOU", "WAS", "CLE", "NYJ", "KC", "PIT", "TEN", "SF", "TB", "MIN", "AZ", "MIA", "BAL", "CHI", "NE", "JAX", "DEN", "DET", "BUF", "ATL", "SEA", "GB", "LAR", "DAL", "CIN", "OAK", "LAC"]; 
+var team_full = ["CAR", "PHI", "IND", "NO", "NYG", "HOU", "WAS", "CLE", "NYJ", "KC", "PIT", "TEN", "SF", "TB", "MIN", "ARI", "MIA", "BAL", "CHI", "NE", "JAC", "DEN", "DET", "BUF", "ATL", "SEA", "GB", "LAR", "DAL", "CIN", "OAK", "LAC"]; 
+
+var main_order_home = [];
+var main_order_away = [];
+var team_code_lower = [];
+var spreads = [];
+var final_order = [];
+var team_picks = [];
+var mon_points = [];
+var tmp_string = [];
+var tmp_string_list = [];
+var pick_list = [];
+var pick_color1 = [];
+var pick_color2 = [];
+var color_list = ['#FFFFFF', '#00FF00'];
+
+for (var i = 0; i < team_code.length; i++){
+        team_code_lower[i] = team_code[i].toLowerCase();
+}
+var x = [];
+var fb_test = [];
+
+
+function Get_Data(){
+	$.get(xl, function(data){
+        m = data;
+
+        fb_test = m.indexOf('\n');
+        
+        
+        if (fb_test == -1){
+			m = m.replace(/\r/g, ",");
+		} else {
+			m = m.replace(/\n/g, ",");
+		}
+        
+		m = m.split(',');
+		for (var i = 0; i < nCol; i++){
+				excel_output[i] = [];
+		}
+		for (var i = 0; i < m.length; i++){
+				excel_output[i%nCol].push(m[i]);
+		}
+
+		num_games = excel_output[0].indexOf('Mon Pts') - 1;
+		if (num_games < 0){
+			num_games = excel_output[0].indexOf('Sun Pts') - 1;
+		}
+		
+		pick_list[0] = 'Pick';
+		for (var g = 1; g <=num_games; g++){
+			pick_list[g] = '';
+			pick_color1[g] =  0;
+			pick_color2[g] =  0;
+		}
+		
+		Run_Excel();
+		});
+}
+
+function Run_Excel(){		
+		//create table
+		//$('#main_table').append('<form id="frm1">')
+		$('#main_table').append( '<table>');
+		//first row is table headings
+		$('#main_table').append( '<tr>');
+		var table_headings = ['Game', 'Away', 'Home', 'Your Pick'];
+		for (var i  = 0; i<table_headings.length; i++){
+			$('#main_table').append('<th>' +table_headings[i] +'</th>');
+		}
+		$('#main_table').append( '</tr>');
+		
+		for (var g = 1; g <=num_games; g++){
+			$('#main_table').append('<tr>');
+			//game number
+			$('#main_table').append('<td>' +excel_output[0][g] +'</td>');
+			//away team
+			//$('#main_table').append('<td>')
+			//$('#main_table').append('Radio Button: <input type="radio" id="myRadio">');
+			//$('#main_table').append('</td>')
+			//$('#main_table').append('<td><input type="radio" name="game' + g + '" value="' + excel_output[1][g] + '> ' + excel_output[1][g] +'</td>');
+			$('#main_table').append('<td ' + 'bgcolor="' + color_list[pick_color1[g]] +'" id = "' + g + '1" onclick="TestFunc(' + g + ',' + 1 + ')">' + excel_output[1][g] +'</td>');
+			//home team
+			$('#main_table').append('<td ' + 'bgcolor="' + color_list[pick_color2[g]] +'" id = "' + g + '2" onclick="TestFunc(' + g + ',' + 2 + ')">' + excel_output[2][g] +'</td>');
+			//pick
+			$('#main_table').append('<td>' +pick_list[g] +'</td>');
+			$('#main_table').append('</tr>');
+		}
+		
+		$('#main_table').append( '</table>');
+		//$('#main_table').append( '</form>');
+		$('#main_table').show();
+}
+function TestFunc(g,t){
+	$("#main_table").replaceWith(divClone.clone());
+	str = excel_output[t][g];
+	str = str.replace(/\d/g, "");
+	str = str.replace('+', "");
+	str = str.replace('.', "");
+	str = str.toUpperCase();
+	/* str = str.replace('KC', 'KC*');
+	str = str.replace('NO', 'NO*');
+	str = str.replace('SF', 'SF*');
+	str = str.replace('TB', 'TB*');
+	str = str.replace('NE', 'NE*');
+	str = str.replace('GB', 'GB*');
+	str = str.replace('AZ', 'AZ*'); */
+	
+	if (t == 1){
+		pick_color1[g] = 1;
+		pick_color2[g] = 0;
+	} else {
+		pick_color2[g] = 1;
+		pick_color1[g] = 0;
+	}
+	pick_list[g] = str;
+	Run_Excel()	
+}
+
+function SendPicks(){
+
+	$("#submit_status").show();
+
+	if (frm1.email.value.length < 2 ||  frm1.name.value.length < 2){
+		$("#submit_status").text('PICKS NOT SENT - please enter your entry name and email address before submitting.');
+		return
+	}
+
+	$("#submit_button").hide();
+	$("#submit_status").text('Sending picks...wait for confirmation.');
+	
+	pick_list[num_games + 1] = frm1.mondayPoints.value;
+	if (num_games < 16){
+		for (var g = num_games + 2; g <=17; g++){
+			pick_list[g] = 'BYE';
+		}
+	}
+	
+	for (var g = 1; g <=17; g++){
+		if (pick_list[g] === "") {
+   			str = excel_output[1][g];
+			str = str.replace(/\d/g, "");
+			str = str.replace('+', "");
+			str = str.replace('.', "");
+			str = str.toUpperCase();
+   			pick_list[g] = str;
+		}
+		/*pick_list[g] = pick_list[g].replace('NO', 'NO*');
+		pick_list[g] = pick_list[g].replace('SF', 'SF*');
+		pick_list[g] = pick_list[g].replace('TB', 'TB*');
+		pick_list[g] = pick_list[g].replace('NE', 'NE*');
+		pick_list[g] = pick_list[g].replace('GB', 'GB*');
+		pick_list[g] = pick_list[g].replace('AZ', 'AZ*');
+		pick_list[g] = pick_list[g].replace('KC', 'KC*');*/
+	}
+	
+	var templateParams = {
+		from_name: frm1.name.value,
+		pick1: pick_list[1],
+		pick2: pick_list[2],
+		pick3: pick_list[3],
+		pick4: pick_list[4],
+		pick5: pick_list[5],
+		pick6: pick_list[6],
+		pick7: pick_list[7],
+		pick8: pick_list[8],
+		pick9: pick_list[9],
+		pick10: pick_list[10],
+		pick11: pick_list[11],
+		pick12: pick_list[12],
+		pick13: pick_list[13],
+		pick14: pick_list[14],
+		pick15: pick_list[15],
+		pick16: pick_list[16],
+		pick17: pick_list[17],
+		to_name1: 'rwstrong3@gmail.com',
+		to_name2: frm1.email.value
+	};
+ 
+	emailjs.send('gmail', 'template_bawYh5Di', templateParams)
+		.then(function(response) {
+		   console.log('SUCCESS!', response.status, response.text);
+		   $("#submit_status").text('Picks sent! See your email for confirmation.');
+		}, function(error) {
+		   console.log('FAILED...', error);
+		   $("#submit_status").text('SENDING FAILED - PICKS NOT SENT');
+		   $("#submit_button").show();
+		});
+}
+
+
+
+
+function sortWithIndices(toSort) {
+  for (var i = 0; i < toSort.length; i++) {
+    toSort[i] = [toSort[i], i];
+  }
+  toSort.sort(function(left, right) {
+    return left[0] < right[0] ? -1 : 1;
+  });
+  toSort.sortIndices = [];
+  for (var j = 0; j < toSort.length; j++) {
+    toSort.sortIndices.push(toSort[j][1]);
+    toSort[j] = toSort[j][0];
+  }
+  return toSort;
+}
+
+</script>
+
+<style>
+
+div.vertical{
+ margin-left: -12px;
+ position: absolute;
+ width: 50px;
+ transform: rotate(-90deg);
+ -webkit-transform: rotate(-90deg); /* Safari/Chrome */
+ -moz-transform: rotate(-90deg); /* Firefox */
+ -o-transform: rotate(-90deg); /* Opera */
+ -ms-transform: rotate(-90deg); /* IE 9 */
+}
+
+div.vertical2{
+ margin-left: 10px;
+ position: absolute;
+ width: 50px;
+ transform: rotate(-90deg);
+ -webkit-transform: rotate(-90deg); /* Safari/Chrome */
+ -moz-transform: rotate(-90deg); /* Firefox */
+ -o-transform: rotate(-90deg); /* Opera */
+ -ms-transform: rotate(-90deg); /* IE 9 */
+}
+
+th.vertical{
+ padding-top: 30px;
+ line-height: 30px;
+ padding-bottom: 50px;
+ font-size: 12px;
+ text-align: left;
+ background: #404040;
+ /*background: linear-gradient(#333 0%,#444 100%);*/
+ color: #FFFFFF;
+ border: 0px solid #000;
+}
+
+th.vertical2{
+ padding-top: 30px;
+ line-height: 30px;
+ padding-bottom: 50px;
+ font-size: 12px;
+ text-align: left;
+ background: #404040;
+ /*background: linear-gradient(#333 0%,#444 100%);*/
+ color: #FFFFFF;
+ border: 0px solid #000;
+}
+
+td {
+text-align:center;
+font-size: 12px;
+padding: 4px;
+border: 1px solid #000;
+ white-space: nowrap;
+  overflow: hidden;
+}
+
+td.bottom {
+text-align:center;
+font-size: 11px;
+color: #FFFFFF;
+padding: 4px;
+border: 0px solid #000;
+background: #404040;
+/*background: linear-gradient(#333 0%,#444 100%);*/
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+#loading{
+	text-align: center;
+	font-weight: bold;
+	font-size: 36px;
+}
+
+#bottom_lines1 {
+	text-align: center;
+	font-weight: bold;
+	font-size: 26px;
+	display:none;
+}
+
+#bottom_lines2 {
+	text-align: center;
+	font-weight: bold;
+	font-size: 26px;
+	display:none;
+}
+
+#bottom_lines3 {
+	text-align: center;
+	font-weight: bold;
+	font-size: 26px;
+	display:none;
+}
+
+#refresh {
+	font-weight: bold;
+	font-size: 14px;
+        display:none;
+}
+#zoom {
+	font-weight: bold;
+	font-size: 14px;
+        display:none;
+}
+</style>
+
+<body>
+
+<div id="instruct">Click the teams you want to pick. <br> When you are finished, make sure to enter<br> - Monday points <br> - your entry name <br> - your email address.<br><br>Also, please venmo $5 to @Roger-Strong for your entry fee.<br>Winner take all, ties are broken by Monday night total points.<br><br>Picks are due Saturday 1/15 at 12 PM EST. At that time, you can track picks <a href=https://fbpool2021.github.io/>here</a>.</div><br><br>
+<div id="main_table"></div>
+	<br>
+<form id="frm1">
+  Monday Points:
+  <input type="text" size="3" maxlength="2" name="mondayPoints" value="">
+  <br>Name:
+  <input type="text"  size="10" name="name" value="">
+  <br>Your Email:
+  <input type="text"  size="20" name="email" value="">
+  <br><br>
+</form>
+<div id="submit_button"><button id ="submit_button" onclick="SendPicks()">Submit Picks</button></div>
+<div id="submit_status"></div>
+
+</body>
