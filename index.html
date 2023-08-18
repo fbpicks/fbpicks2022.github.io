@@ -24,6 +24,11 @@ $(document).ready(function() {
 	frm1.mondayPoints.value = urlParams.get('mon');
 	frm1.name.value = urlParams.get('name');
 	frm1.email.value = urlParams.get('email');
+	if (screen.width < 1024 && screen.height < 768)
+	{
+		$('td').css('font-size', '16px');
+	}
+	
 	Get_Data();
 });
 
