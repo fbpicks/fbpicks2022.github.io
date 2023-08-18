@@ -1,1 +1,1 @@
-# fbpicks2022.github.io
+# fbpicks.github.io
