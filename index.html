@@ -227,7 +227,8 @@ function SendPicks(){
 	emailjs.send('gmail', 'template_bawYh5Di', templateParams)
 		.then(function(response) {
 		   console.log('SUCCESS!', response.status, response.text);
-		   $("#submit_status").text('Picks sent! See your email for confirmation.');
+		   $("#submit_status").html('Picks sent! See your email for confirmation.<br>' + 
+					   <a href=https://fbpool.github.io/>Go to live site.</a>);
 		}, function(error) {
 		   console.log('FAILED...', error);
 		   $("#submit_status").text('SENDING FAILED - PICKS NOT SENT');
