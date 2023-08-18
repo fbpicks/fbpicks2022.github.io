@@ -57,7 +57,7 @@ function Get_Data(){
         fb_test = m.indexOf('\n');
         
         
-        if (fb_test == -1){
+        if (fb_test === -1){
 			m = m.replace(/\r/g, ",");
 		} else {
 			m = m.replace(/\n/g, ",");
@@ -135,7 +135,7 @@ function TestFunc(g,t){
 	str = str.replace('GB', 'GB*');
 	str = str.replace('AZ', 'AZ*'); */
 	
-	if (t == 1){
+	if (t === 1){
 		pick_color1[g] = 1;
 		pick_color2[g] = 0;
 	} else {
